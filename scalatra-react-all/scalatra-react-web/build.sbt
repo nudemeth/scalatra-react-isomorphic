@@ -1,15 +1,5 @@
 val ScalatraVersion = "2.5.1"
 
-organization := "com.nudemeth"
-
-name := "scalatra-react-web"
-
-version := "0.1.0-SNAPSHOT"
-
-scalaVersion := "2.12.3"
-
-resolvers += Classpaths.typesafeReleases
-
 libraryDependencies ++= Seq(
   "org.scalatra" %% "scalatra" % ScalatraVersion,
   "org.scalatra" %% "scalatra-scalatest" % ScalatraVersion % "test",

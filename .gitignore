@@ -5,7 +5,6 @@
 *.swp
 *.out
 
-# rails specific
 *.sqlite3
 config/database.yml
 log/*
