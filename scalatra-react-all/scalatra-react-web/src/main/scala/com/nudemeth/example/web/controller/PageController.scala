@@ -5,7 +5,7 @@ import org.scalatra._
 class PageController extends ScalatraServlet {
 
   get("/") {
-    views.html.hello()
+    views.html.index.render("Hello Twirl")
   }
 
 }
