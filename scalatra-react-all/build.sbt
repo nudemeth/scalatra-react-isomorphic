@@ -20,25 +20,21 @@ def getFromSelectedProjects[T](targetTask: TaskKey[T], state: State, project: Pr
 
 
 lazy val pack = taskKey[Unit]("Copy runtime dependencies and built artifacts to target/output") := {
-  val artifact = packageBin.in(Runtime).value
-  val libs = dependencyClasspath.in(Runtime).value.map(_.data).filter(_.isFile).toList
-  streams.value.log.info(s"Copying libs to ${baseDirectory.value}/target/output/lib")
-  streams.value.log.info(s"Copying ${artifact.getName} to ${baseDirectory.value}/target/output/core")
-  IO.copy(libs.map(f => (f, baseDirectory.value / s"/target/output/lib/${f.getName}")))
-  IO.copyFile(artifact, baseDirectory.value / s"/target/output/core/${artifact.getName}")
-
-  val childrenJars = Def.taskDyn {
+  val dependentProjects = Def.taskDyn {
     val children = getFromSelectedProjects(packageBin in Runtime, state.value, thisProjectRef.value)
     Def.task {children.value}
   }.value
 
-  streams.value.log.info(s"Copying: ${childrenJars.foldLeft("")((prev,next) => s"$prev, $next")}")
-  IO.copy(childrenJars.map(j => (j, baseDirectory.value / s"/target/output/core/${j.getName}")))
-}
+  val artifacts = Seq(packageBin.in(Runtime).value)
+  val libs = dependencyClasspath.in(Runtime).value.map(_.data).filter(_.isFile).toList
+  val copiedLibs = IO.copy(libs.map(f => (f, baseDirectory.value / s"/target/output/lib/${f.getName}")))
+  val copiedArtifacts = IO.copy(artifacts.map(f => (f, baseDirectory.value / s"/target/output/core/${f.getName}")))
+  val copiedDependentProjects = IO.copy(dependentProjects.map(j => (j, baseDirectory.value / s"/target/output/core/${j.getName}")))
 
-/*test in Test := {
-pack.init.value
-}*/
+  streams.value.log.info(copiedLibs.foldLeft("")((s,f) => { s"$s${name.value} --> Copied lib ${f.getName} to ${f.getParent}\n" }).trim)
+  streams.value.log.info(copiedArtifacts.foldLeft("")((s,f) => { s"$s${name.value} --> Copied artifact ${f.getName} to ${f.getParent}\n" }).trim)
+  streams.value.log.info(copiedDependentProjects.foldLeft("")((s,f) => { s"$s${name.value} --> Copied dependent project jar ${f.getName} to ${f.getParent}\n" }).trim)
+}
 
 lazy val all = (project in file("."))
 .settings(
