@@ -4,11 +4,8 @@ val commonSettings = Seq (
   organization := "com.nudemeth",
   version := "0.1.0-SNAPSHOT",
   scalaVersion := "2.12.3",
-  resolvers += Classpaths.typesafeReleases
-)
-
-libraryDependencies ++= Seq(
-  "ch.qos.logback" % "logback-classic" % "1.1.5" % "runtime"
+  resolvers += Classpaths.typesafeReleases,
+  packageOptions.in(packageBin) += addManifestClassPath.init.value
 )
 
 packageOptions.in(packageBin) += Package.ManifestAttributes("Main-Class" -> "com.nudemeth.example.launcher.JettyLauncher")
@@ -39,16 +36,19 @@ lazy val pack = taskKey[Unit]("Copy runtime dependencies and built artifacts to 
   val artifacts = Seq(packageBin.in(Runtime).value)
   val copiedLibs = IO.copy(libs.map(f => (f, baseDirectory.value / s"/target/output/lib/${f.getName}")))
   val copiedArtifacts = IO.copy(artifacts.map(f => (f, baseDirectory.value / s"/target/output/${f.getName}")))
-  val copiedDependentProjects = IO.copy(subProjects.map(j => (j, baseDirectory.value / s"/target/output/core/${j.getName}")))
+  val copiedSubProjects = IO.copy(subProjects.map(j => (j, baseDirectory.value / s"/target/output/core/${j.getName}")))
 
   streams.value.log.info(copiedLibs.foldLeft("")((s,f) => { s"$s${name.value} --> Copied lib ${f.getName} to ${f.getParent}\n" }).trim)
   streams.value.log.info(copiedArtifacts.foldLeft("")((s,f) => { s"$s${name.value} --> Copied artifact ${f.getName} to ${f.getParent}\n" }).trim)
-  streams.value.log.info(copiedDependentProjects.foldLeft("")((s,f) => { s"$s${name.value} --> Copied dependent project jar ${f.getName} to ${f.getParent}\n" }).trim)
+  streams.value.log.info(copiedSubProjects.foldLeft("")((s,f) => { s"$s${name.value} --> Copied dependent project jar ${f.getName} to ${f.getParent}\n" }).trim)
 }
 
+lazy val libClassPath = settingKey[String]("Relative path to lib jars for adding to Class-Path attribute in manifest")
+lazy val coreClassPath = settingKey[String]("Relative path to sub project jars for adding to Class-Path attribute in manifest")
+
 lazy val addManifestClassPath = taskKey[ManifestAttributes]("Add manifest Class-Path attribute") := {
-  val subProjects = getSubProjectJars.init.value.map(f => s"./core/${f.getName}")
-  val libs = getLibJars.init.value.map(f => s"./lib/${f.getName}")
+  val subProjects = getSubProjectJars.init.value.map(f => s"${coreClassPath.value}${f.getName}")
+  val libs = getLibJars.init.value.map(f => s"${libClassPath.value}${f.getName}")
   val dependencies = subProjects ++ libs
   Package.ManifestAttributes("Class-Path" -> dependencies.mkString(" "))
 }
@@ -57,8 +57,9 @@ lazy val all = (project in file("."))
 .settings(
   commonSettings,
   name := "scalatra-react-all",
-  pack,
-  packageOptions.in(packageBin) += addManifestClassPath.init.value
+  coreClassPath := "./core/",
+  libClassPath := "./lib/",
+  pack
 )
 .dependsOn(web, launcher)
 .aggregate(web, launcher)
@@ -67,8 +68,8 @@ lazy val launcher = (project in file("./scalatra-react-launcher"))
 .settings(
   commonSettings,
   name := "scalatra-react-launcher",
-  pack,
-  packageOptions.in(packageBin) += addManifestClassPath.init.value
+  coreClassPath := "./",
+  libClassPath := "../lib/",
 )
 .dependsOn(web)
 .aggregate(web)
@@ -77,7 +78,7 @@ lazy val web = (project in file("./scalatra-react-web"))
 .settings(
   commonSettings,
   name := "scalatra-react-web",
-  pack,
-  packageOptions.in(packageBin) += addManifestClassPath.init.value
+  coreClassPath := "./",
+  libClassPath := "../lib/",
 )
 
