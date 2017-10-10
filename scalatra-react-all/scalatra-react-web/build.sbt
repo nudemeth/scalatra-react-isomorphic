@@ -10,3 +10,13 @@ libraryDependencies ++= Seq(
 
 enablePlugins(SbtTwirl)
 enablePlugins(ScalatraPlugin)
+
+lazy val copyFrontEndResources = taskKey[Unit]("Copy front-end resources to src/main/resources folder") := {
+  val source = baseDirectory.value / "src/main/webapp"
+  IO.copyDirectory(source, resourceDirectory.in(Compile).value / "webapp")
+}
+
+compile.in(Compile) := {
+  copyFrontEndResources.init.value
+  compile.in(Compile).value
+}
