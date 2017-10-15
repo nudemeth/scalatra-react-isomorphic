@@ -1,2 +1,5 @@
 ## generic files to ignore
 src/main/resources/webapp/*
+src/main/webapp/*
+!src/main/webapp/WEB-INF/*
+src/main/node/node_modules/*
