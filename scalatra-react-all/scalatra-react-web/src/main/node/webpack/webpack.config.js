@@ -18,12 +18,10 @@ module.exports = {
             exclude: /node_modules/,
             query: {
                 presets: [
-                    path.join(paths.NODE_MODULES, 'babel-preset-es2015'),
+                    path.join(paths.NODE_MODULES, 'babel-preset-env'),
                     path.join(paths.NODE_MODULES, 'babel-preset-stage-2'),
-                    path.join(paths.NODE_MODULES, 'babel-preset-react')
-                ],
-                plugins: [
-                    path.join(paths.NODE_MODULES, 'babel-plugin-transform-runtime')
+                    path.join(paths.NODE_MODULES, 'babel-preset-react'),
+                    path.join(paths.NODE_MODULES, 'babel-polyfill')
                 ]
             }
         }]

@@ -1,8 +1,6 @@
 @(content: String, data: String)
 @layouts.html.default("Welcome to Scalatra"){
-    <div id="body">
-        @Html(content)
-    </div>
+    <div id="body">@Html(content)</div>
     <script type="text/javascript" src="./js/bundle.js"></script>
     <script type="text/javascript">
         var frontend = new com.nudemeth.example.web.Frontend();

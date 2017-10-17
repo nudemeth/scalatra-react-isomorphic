@@ -9,7 +9,7 @@ class Container extends React.Component {
     render() {
         return (
             <div>
-                <h1>{this.state.data.greeting}</h1>
+                <h1>{this.state.data}</h1>
             </div>
         )
     }
