@@ -41,19 +41,17 @@ lazy val copyNashornPolyfill = taskKey[Unit]("Copy polyfill for Nashorn javascri
   IO.copyDirectory(source, sourceDirectory.value / "main/webapp/js/polyfill")
 }
 
-lazy val packFrontend = taskKey[Unit]("Copy front-end resources to src/main/resources folder") := {
-  compile.in(Compile).value
-  copyNashornPolyfill.init.value
-  val source = sourceDirectory.value / "main/webapp"
-  IO.copyDirectory(source, resourceDirectory.in(Compile).value / "webapp")
-}
-
-compile.in(Compile) := {
+lazy val frontEndResourceGenerator = taskKey[Seq[File]]("Generate front-end resources") := {
   compileFrontend.init.value
-  compile.in(Compile).value
+  copyNashornPolyfill.init.value
+  val webapp = sourceDirectory.value / "main" / "webapp"
+  val managed = resourceManaged.value
+  for {
+    (from, to) <- webapp ** "*" pair Path.rebase(webapp, managed / "main" / "webapp")
+  } yield {
+    Sync.copy(from, to)
+    to
+  }
 }
 
-packageBin.in(Compile) := {
-  packFrontend.init.value
-  packageBin.in(Compile).value
-}
+resourceGenerators.in(Compile) += frontEndResourceGenerator.init
