@@ -1,5 +1,5 @@
 package com.nudemeth.example.web.engine
 
-trait JavaScriptEngine {
-
+abstract class JavaScriptEngine(scripts: Seq[ScriptSource]) {
+  def invokeMethod[T](objectName: String, methodName: String, args: Any*): T
 }

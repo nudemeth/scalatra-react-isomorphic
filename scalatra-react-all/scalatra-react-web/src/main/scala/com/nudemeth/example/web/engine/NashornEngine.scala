@@ -1,48 +1,55 @@
 package com.nudemeth.example.web.engine
 
-import java.io.Reader
-import java.net.URL
-import javax.script.ScriptEngineManager
+import javax.script.{CompiledScript, ScriptEngineManager}
 
 import jdk.nashorn.api.scripting.{JSObject, NashornScriptEngine}
 
 object NashornEngine {
+  /*
+  Shared engine and compiled script. See link below
+  https://stackoverflow.com/questions/30140103/should-i-use-a-separate-scriptengine-and-compiledscript-instances-per-each-threa
+  https://blogs.oracle.com/nashorn/nashorn-multithreading-and-mt-safety
+  */
   private val manager: ScriptEngineManager = new ScriptEngineManager()
   private val engine: NashornScriptEngine = manager.getEngineByName("nashorn").asInstanceOf[NashornScriptEngine]
+  private var compiledScript: Option[CompiledScript] = None
 }
 
-class NashornEngine {
-  def registerScript(scriptPath: URL): Unit = {
-    NashornEngine.engine.eval(readScriptAsStream(scriptPath))
-  }
+class NashornEngine(scripts: Seq[ScriptSource]) extends JavaScriptEngine(scripts) {
+  import NashornEngine._
 
-  def registerExpression(command: String): Unit = {
-    NashornEngine.engine.eval(command)
-  }
-
-  def invokeFunction(functionName: String, args: Any*): String = {
-    val returnedValue: AnyRef = NashornEngine.engine.invokeFunction(functionName, args.map(_.asInstanceOf[AnyRef]): _*)
-    String.valueOf(returnedValue)
-  }
-
-  def invokeMethod(objectName: String, methodName: String, args: Any*): String = {
-    val jsObject =  NashornEngine.engine.eval(objectName).asInstanceOf[JSObject]
-    val returnedValue: AnyRef = NashornEngine.engine.invokeMethod(jsObject, methodName, args.map(_.asInstanceOf[AnyRef]): _*)
-    String.valueOf(returnedValue)
-  }
-
-  def getDeepestMember(objectName: String, parent: Option[JSObject] = None): JSObject = {
-    val parts = objectName.split(".")
-    val member = (parent, parts.size) match {
-      case (None, size) if size == 1 => NashornEngine.engine.get(parts(0)).asInstanceOf[JSObject]
-      case (None, size) if size > 1 => getDeepestMember(parts.drop(1).mkString("."), Some(NashornEngine.engine.get(parts(0)).asInstanceOf[JSObject]))
-      case (Some(parent), size) if size == 1 => parent.getMember(parts(0)).asInstanceOf[JSObject]
-      case (Some(parent), size) if size > 1 => getDeepestMember(parts.drop(1).mkString("."), Some(parent.getMember(parts(0)).asInstanceOf[JSObject]))
+  private def init(): Unit = {
+    NashornEngine.compiledScript match {
+      case Some(_) =>
+      case None => NashornEngine.compiledScript = Some(compileScript())
     }
-    member
   }
 
-  private def readScriptAsStream(path: URL): Reader = {
-    scala.io.Source.fromURL(path)("UTF-8").reader()
+  private def compileScript(): CompiledScript = {
+    val allScript = scripts.map{
+      case ScriptText(ss) => ss
+      case ScriptURL(ss) => scala.io.Source.fromURL(ss)("UTF-8").mkString
+    }.mkString(sys.props("line.separator"))
+    NashornEngine.engine.compile(allScript)
   }
+
+  init()
+
+  /**
+    * To invoke javascript object method. Always create new bindings when calling this because of multithreading environment
+    * @param objectName Object to call
+    * @param methodName Method name to call
+    * @param args Parameters to pass into the method
+    * @tparam T Expected return type
+    * @return Instance of expected T type
+    */
+  override def invokeMethod[T](objectName: String, methodName: String, args: Any*): T = {
+    val bindings = engine.createBindings()
+    compiledScript.get.eval(bindings)
+    val obj = bindings.get(objectName).asInstanceOf[JSObject]
+    val method = obj.getMember(methodName).asInstanceOf[JSObject]
+    method.call(obj, args.map(_.asInstanceOf[AnyRef]): _*).asInstanceOf[T]
+  }
+
 }
+
