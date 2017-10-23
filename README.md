@@ -34,3 +34,9 @@ Embedded Jetty is used to create executable jar.
 
 `pack` creates and copies all dependencies to **./target/output**.
 If you don't like the output structure, please consider [sbt-assembly](https://github.com/sbt/sbt-assembly) for fat Jar or [sbt-pack](https://github.com/xerial/sbt-pack) for distributable Scala packages that include dependent jars and launch scripts.
+
+## Bugs and Issues ##
+Have a bug or an issue with this template? [Open a new issue](https://github.com/nudemeth/scalatra-react-isomorphic/issues)
+
+## License ##
+Code released under the [Unlicense](https://github.com/nudemeth/scalatra-react-isomorphic/blob/master/LICENSE) license
