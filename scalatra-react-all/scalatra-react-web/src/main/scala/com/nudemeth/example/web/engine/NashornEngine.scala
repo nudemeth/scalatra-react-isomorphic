@@ -1,8 +1,8 @@
 package com.nudemeth.example.web.engine
 
-import javax.script.{CompiledScript, ScriptEngineManager}
+import javax.script.CompiledScript
 
-import jdk.nashorn.api.scripting.{JSObject, NashornScriptEngine}
+import jdk.nashorn.api.scripting.{JSObject, NashornScriptEngine, NashornScriptEngineFactory}
 
 object NashornEngine {
   /*
@@ -10,8 +10,7 @@ object NashornEngine {
   https://stackoverflow.com/questions/30140103/should-i-use-a-separate-scriptengine-and-compiledscript-instances-per-each-threa
   https://blogs.oracle.com/nashorn/nashorn-multithreading-and-mt-safety
   */
-  private val manager: ScriptEngineManager = new ScriptEngineManager()
-  private val engine: NashornScriptEngine = manager.getEngineByName("nashorn").asInstanceOf[NashornScriptEngine]
+  private val engine = new NashornScriptEngineFactory().getScriptEngine.asInstanceOf[NashornScriptEngine]
   private var compiledScript: Option[CompiledScript] = None
 }
 
