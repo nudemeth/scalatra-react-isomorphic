@@ -13,4 +13,10 @@ class PageControllerTests extends ScalatraSuite with FunSuiteLike {
     }
   }
 
+  test("GET / on PageController should show \"Hello World\" in body content"){
+    get("/"){
+      body should include ("Hello World")
+    }
+  }
+
 }
