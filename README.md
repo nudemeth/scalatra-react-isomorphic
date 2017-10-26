@@ -1,8 +1,8 @@
 # scalatra-react-isomorphic #
 
-A light weight isomorphic web application using Scalatra as a back-end freamework and React as a front-end framework. Nashorn is used for server rendering.
+A light weight isomorphic web application using Scalatra as a back-end framework and React as a front-end framework. Nashorn is used for server rendering.
 
-## Prerequisite ##
+## Prerequisites ##
 1. Java >= 1.8.0_144
 2. NodeJs >= 6.11.3
 3. sbt >= 1.0.2
@@ -26,7 +26,7 @@ $ ./sbt
 > assembly
 ```
 
-Embedded Jetty is used to create executable jar.
+Embedded Jetty is used to create standalone jar.
 
 `assembly` task will compile your project, run your tests, and then pack your class files, all your dependencies and webapp resources into a single JAR file: **target/scala_X.X.X/projectname-assembly-X.X.X.jar**. If you want more configurable, please have a look at [sbt-assembly](https://github.com/sbt/sbt-assembly).
 
