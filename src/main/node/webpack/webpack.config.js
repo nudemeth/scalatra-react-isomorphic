@@ -1,7 +1,7 @@
 const path = require('path');
 const paths = {
-    MAIN: path.resolve('scalatra-react-web', 'src', 'main'),
-    NODE_MODULES: path.resolve('scalatra-react-web', 'src', 'main', 'node', 'node_modules')
+    MAIN: path.resolve('src', 'main'),
+    NODE_MODULES: path.resolve('src', 'main', 'node', 'node_modules')
 }
 
 module.exports = {

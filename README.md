@@ -10,7 +10,7 @@ A light weight isomorphic web application using Scalatra as a back-end freamewor
 ## Build & Run ##
 
 ```sh
-$ cd scalatra-react-all
+$ cd [working directory]
 $ ./sbt
 > jetty:start
 > browse
@@ -21,19 +21,14 @@ If `browse` doesn't launch your browser, manually open [http://localhost:8080/](
 ## Packaging ##
 
 ```sh
-$ cd scalatra-react-all
+$ cd [working directory]
 $ ./sbt
-> pack
-> exit
-
-$ cd ./target/output
-$ java -jar scalatra-react-all_2.12-0.1.0-SNAPSHOT.jar
+> assembly
 ```
 
 Embedded Jetty is used to create executable jar.
 
-`pack` creates and copies all dependencies to **./target/output**.
-If you don't like the output structure, please consider [sbt-assembly](https://github.com/sbt/sbt-assembly) for fat Jar or [sbt-pack](https://github.com/xerial/sbt-pack) for distributable Scala packages that include dependent jars and launch scripts.
+`assembly` task will compile your project, run your tests, and then pack your class files, all your dependencies and webapp resources into a single JAR file: **target/scala_X.X.X/projectname-assembly-X.X.X.jar**. If you want more configurable, please have a look at [sbt-assembly](https://github.com/sbt/sbt-assembly).
 
 ## Bugs and Issues ##
 Have a bug or an issue with this template? [Open a new issue](https://github.com/nudemeth/scalatra-react-isomorphic/issues)

@@ -2,6 +2,10 @@ import scala.sys.process._
 
 val ScalatraVersion = "2.5.1"
 
+organization := "com.nudemeth"
+version := "0.1.0-SNAPSHOT"
+scalaVersion := "2.12.3"
+resolvers += Classpaths.typesafeReleases
 libraryDependencies ++= Seq(
   "org.scalatra" %% "scalatra" % ScalatraVersion,
   "org.scalatra" %% "scalatra-scalatest" % ScalatraVersion % "test",
@@ -9,6 +13,7 @@ libraryDependencies ++= Seq(
   "org.eclipse.jetty" % "jetty-webapp" % "9.2.15.v20160210" % "container;compile",
   "javax.servlet" % "javax.servlet-api" % "3.1.0" % "provided"
 )
+resourceGenerators.in(Compile) += buildFrontEndResource.init
 
 enablePlugins(SbtTwirl)
 enablePlugins(ScalatraPlugin)
@@ -53,5 +58,3 @@ lazy val buildFrontEndResource = taskKey[Seq[File]]("Generate front-end resource
     to
   }
 }
-
-resourceGenerators.in(Compile) += buildFrontEndResource.init
