@@ -6,7 +6,7 @@ import jdk.nashorn.api.scripting.{JSObject, NashornScriptEngine, NashornScriptEn
 
 object NashornEngine {
   /*
-  Shared engine and compiled script. See link below
+  Shared engine and compiled script. See links below:
   https://stackoverflow.com/questions/30140103/should-i-use-a-separate-scriptengine-and-compiledscript-instances-per-each-threa
   https://blogs.oracle.com/nashorn/nashorn-multithreading-and-mt-safety
   */
@@ -24,18 +24,22 @@ class NashornEngine(scripts: Seq[ScriptSource]) extends JavaScriptEngine(scripts
     }
   }
 
-  private def compileScript(): CompiledScript = {
-    val allScript = scripts.map{
-      case ScriptText(ss) => ss
-      case ScriptURL(ss) => scala.io.Source.fromURL(ss)("UTF-8").mkString
+  private def appendScript(): String = {
+    scripts.map{
+      case ScriptText(s) => s
+      case ScriptURL(s) => scala.io.Source.fromURL(s)("UTF-8").mkString
     }.mkString(sys.props("line.separator"))
+  }
+
+  private def compileScript(): CompiledScript = {
+    val allScript = appendScript()
     NashornEngine.engine.compile(allScript)
   }
 
   init()
 
   /**
-    * To invoke javascript object method. Always create new bindings when calling this because of multithreading environment
+    * Invoking javascript object method. Always create new bindings when calling this because of multithreading environment
     * @param objectName Object to call
     * @param methodName Method name to call
     * @param args Parameters to pass into the method
