@@ -1,6 +1,6 @@
 # scalatra-react-isomorphic #
 
-A light weight isomorphic web application using Scalatra as a back-end framework and React as a front-end framework. Nashorn is used for server rendering.
+An example of light weight isomorphic web application using Scalatra as a back-end framework and React as a front-end framework. Nashorn is used for server rendering.
 
 ## Prerequisites ##
 1. Java >= 1.8.0_144
