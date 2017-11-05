@@ -1,18 +1,19 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import ReactDOMServer from 'react-dom/server'
-import Container from './js/component/layout/Container.jsx'
+import Body from './js/component/layout/Body.jsx'
 
 class Frontend {
-    renderServer = (data) => {
+    renderServer = (jsonModel) => {
+        let model = JSON.parse(jsonModel);
         return ReactDOMServer.renderToString(
-            <Container data={data} />
+            <Body model={model} />
         );
     }
 
-    renderClient = (data) => {
+    renderClient = (model) => {
         return ReactDOM.render(
-            <Container data={data} />,
+            <Body model={model} />,
             document.getElementById('body')
         );
     }
