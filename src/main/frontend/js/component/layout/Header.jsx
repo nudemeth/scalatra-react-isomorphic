@@ -1,4 +1,6 @@
 import React from 'react';
+import {Link} from 'react-router-dom';
+import {Router} from 'react-router';
 
 class Header extends React.Component {
     constructor(props) {
@@ -10,8 +12,8 @@ class Header extends React.Component {
             <header>
                 <h1>This is header</h1>
                 <ul>
-                    <li><a href="#">Link 1</a></li>
-                    <li><a href="#">Link 2</a></li>
+                    <li><Link to="/">Home</Link></li>
+                    <li><Link to="/about">About</Link></li>
                 </ul>
             </header>
         );

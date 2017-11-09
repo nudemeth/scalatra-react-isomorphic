@@ -19,8 +19,14 @@ class PageController extends ScalatraServlet {
   )
 
   get("/") {
-    val model = write(HomeViewModel("This is content"))
-    val content = nashorn.invokeMethod[String]("frontend", "renderServer", model)
+    val model = write(HomeViewModel(s"This is Home page"))
+    val content = nashorn.invokeMethod[String]("frontend", "renderServer", "/", model)
+    views.html.index.render(content, model)
+  }
+
+  get("/about") {
+    val model = write(HomeViewModel(s"This is About page"))
+    val content = nashorn.invokeMethod[String]("frontend", "renderServer", "/about", model)
     views.html.index.render(content, model)
   }
 }
