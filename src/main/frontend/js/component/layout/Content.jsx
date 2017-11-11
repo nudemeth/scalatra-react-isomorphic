@@ -7,12 +7,16 @@ class Content extends React.Component {
         super(props);
     }
 
+    renderComponent = () => {
+        return Routes.map((route, index) => (
+            <Route key={index} path={route.path} exact={route.exact} render={() => (<div>{route.component(this.props.model)}</div>)} />
+        ));
+    }
+
     render() {
         return (
             <main role="main">
-                {Routes.map((route, index) => (
-                    <Route key={index} path={route.path} exact={route.exact} render={() => (<div>{route.component(this.props.model)}</div>)} />
-                ))}
+                {this.renderComponent()}
             </main>
         );
     }
