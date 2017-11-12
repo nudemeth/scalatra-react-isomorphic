@@ -2,7 +2,7 @@ import React from 'react';
 import Header from './Header.jsx'
 import Content from './Content.jsx'
 
-class Body extends React.Component {
+class Container extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -17,4 +17,4 @@ class Body extends React.Component {
     }
 }
 
-module.exports = Body;
+module.exports = Container;

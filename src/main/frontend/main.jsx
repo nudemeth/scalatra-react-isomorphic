@@ -5,14 +5,14 @@ import {StaticRouter} from 'react-router';
 import {BrowserRouter} from 'react-router-dom';
 import createBrowserHistory from 'history/createBrowserHistory';
 import createMemoryHistory from 'history/createMemoryHistory';
-import Body from './js/component/layout/Body.jsx'
+import Container from './js/component/layout/Container.jsx'
 
 class Frontend {
     renderServer = (location, jsonModel) => {
         let model = JSON.parse(jsonModel);
         return ReactDOMServer.renderToString(
             <StaticRouter location={location} context={model}>
-                <Body model={model} />
+                <Container model={model} />
             </StaticRouter>
         );
     }
@@ -21,9 +21,9 @@ class Frontend {
         let history = createBrowserHistory();
         return ReactDOM.render(
             <BrowserRouter>
-                <Body history={history} model={model} />
+                <Container history={history} model={model} />
             </BrowserRouter>,
-            document.getElementById('body')
+            document.getElementById('container')
         );
     }
 }

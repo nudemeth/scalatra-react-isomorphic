@@ -19,4 +19,10 @@ class PageControllerTests extends ScalatraSuite with FunSuiteLike {
     }
   }
 
+  test("GET /about on PageController should show \"About page\" in body content"){
+    get("/about"){
+      body should include ("About page")
+    }
+  }
+
 }
