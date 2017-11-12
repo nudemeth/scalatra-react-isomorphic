@@ -10,6 +10,7 @@ libraryDependencies ++= Seq(
   "org.scalatra" %% "scalatra" % ScalatraVersion,
   "org.scalatra" %% "scalatra-scalatest" % ScalatraVersion % "test",
   "ch.qos.logback" % "logback-classic" % "1.1.5" % "runtime",
+  "org.json4s" %% "json4s-jackson" % "3.4.2",
   "org.eclipse.jetty" % "jetty-webapp" % "9.2.15.v20160210" % "container;compile",
   "javax.servlet" % "javax.servlet-api" % "3.1.0" % "provided"
 )
@@ -46,9 +47,15 @@ lazy val copyNashornPolyfill = taskKey[Unit]("Copy polyfill for Nashorn javascri
   IO.copyDirectory(source, sourceDirectory.value / "main/webapp/js/polyfill")
 }
 
+lazy val copyJquery = taskKey[Unit]("Copy jquery library") := {
+  val files = (sourceDirectory.value / "main/node/node_modules/jquery/dist/" ** "*min.*").get
+  IO.copy(files.map(f => f -> sourceDirectory.value / s"main/webapp/js/lib/jquery/${f.getName}"))
+}
+
 lazy val buildFrontEndResource = taskKey[Seq[File]]("Generate front-end resources") := {
   compileFrontend.init.value
   copyNashornPolyfill.init.value
+  copyJquery.init.value
   val webapp = sourceDirectory.value / "main" / "webapp"
   val managed = resourceManaged.value
   for {
