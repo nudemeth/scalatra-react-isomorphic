@@ -10,17 +10,22 @@ class About extends React.Component {
 
     loadModelFromServer = () => {
         let url = '/data/about';
-        $.ajax({
-            url: url,
-            contentType: 'application/json',
-            dataType: 'json',
-            type: 'POST',
-            success: (result) => {
-                this.setState({model: result});
-            },
-            failure: (xhr, status, err) => {
-                console.error(url, status, err.toString());
+        let header = new Headers({"Content-type": "application/json"});
+        let init = {
+            method: 'POST',
+            header: header,
+            cache: 'no-cache'
+        };
+        let request = new Request(url, init);
+        fetch(request).then((response) => {
+            if (response.ok) {
+                return response.json();
             }
+            throw new Error(`Network response was not ok: status=${response.status}`);
+        }).then((result) => {
+            this.setState({model: result});
+        }).catch((error) => {
+            console.error(`Cannot fetch data from server: url=${url}, error=${error.message}`)
         });
     }
 
