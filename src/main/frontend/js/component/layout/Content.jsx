@@ -1,6 +1,6 @@
 import React from 'react';
 import {Route, Link} from 'react-router-dom'
-import Routes from '../navigation/Routes.jsx';
+import Routes from '../route/Routes.jsx';
 
 class Content extends React.Component {
     constructor(props) {

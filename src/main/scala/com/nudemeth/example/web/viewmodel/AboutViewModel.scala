@@ -1,5 +1,5 @@
 package com.nudemeth.example.web.viewmodel
 
-case class AboutViewModel(text: String) {
+final case class AboutViewModel(text: String) {
 
 }
