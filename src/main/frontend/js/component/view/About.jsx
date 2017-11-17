@@ -12,7 +12,7 @@ class About extends React.Component {
         let url = '/data/about';
         let header = new Headers({"Content-type": "application/json"});
         let init = {
-            method: 'POST',
+            method: 'GET',
             header: header,
             cache: 'no-cache'
         };

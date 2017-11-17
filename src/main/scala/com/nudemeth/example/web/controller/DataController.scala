@@ -5,13 +5,13 @@ import org.json4s.jackson.Serialization.write
 
 class DataController extends BaseController {
 
-  post("/home") {
+  get("/home") {
     contentType = "application/json"
     write(HomeViewModel(s"This is Home page"))
 
   }
 
-  post("/about") {
+  get("/about") {
     contentType = "application/json"
     write(AboutViewModel(s"About page"))
   }
