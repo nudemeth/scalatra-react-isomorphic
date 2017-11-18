@@ -7,13 +7,13 @@ class PageController extends BaseController {
 
   get("/") {
     val model = write(HomeViewModel(s"This is Home page"))
-    val content = nashorn.invokeMethod[String]("frontend", "renderServer", "/", model)
+    val content = renderer.invokeMethod[String]("frontend", "renderServer", requestPath, model)
     views.html.index.render(content, model)
   }
 
   get("/about") {
     val model = write(AboutViewModel(s"About page"))
-    val content = nashorn.invokeMethod[String]("frontend", "renderServer", "/about", model)
+    val content = renderer.invokeMethod[String]("frontend", "renderServer", requestPath, model)
     views.html.index.render(content, model)
   }
 }

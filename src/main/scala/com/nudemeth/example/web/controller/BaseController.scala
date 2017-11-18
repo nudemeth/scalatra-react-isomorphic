@@ -8,7 +8,7 @@ trait BaseController extends ScalatraServlet {
 
   implicit val jsonFormats: Formats = DefaultFormats
 
-  protected lazy val nashorn: JavaScriptEngine = new NashornEngine(
+  protected lazy val renderer: JavaScriptEngine = new NashornEngine(
     Seq(
       ScriptURL(getClass.getResource("/webapp/js/polyfill/nashorn-polyfill.js")),
       ScriptURL(getClass.getResource("/webapp/js/bundle.js")),
