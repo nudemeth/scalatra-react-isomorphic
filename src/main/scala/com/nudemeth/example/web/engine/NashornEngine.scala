@@ -2,7 +2,7 @@ package com.nudemeth.example.web.engine
 
 import javax.script.CompiledScript
 
-import jdk.nashorn.api.scripting.{JSObject, NashornScriptEngine, NashornScriptEngineFactory}
+import jdk.nashorn.api.scripting.{NashornScriptEngine, NashornScriptEngineFactory, ScriptObjectMirror}
 
 object NashornEngine {
   /*
@@ -10,7 +10,9 @@ object NashornEngine {
   https://stackoverflow.com/questions/30140103/should-i-use-a-separate-scriptengine-and-compiledscript-instances-per-each-threa
   https://blogs.oracle.com/nashorn/nashorn-multithreading-and-mt-safety
   */
-  private val engine = new NashornScriptEngineFactory().getScriptEngine.asInstanceOf[NashornScriptEngine]
+  private val engine = new NashornScriptEngineFactory()
+    .getScriptEngine("-strict", "--no-java", "--no-syntax-extensions")
+    .asInstanceOf[NashornScriptEngine]
   private var compiledScript: Option[CompiledScript] = None
 }
 
@@ -49,9 +51,8 @@ class NashornEngine(scripts: Seq[ScriptSource]) extends JavaScriptEngine(scripts
   override def invokeMethod[T](objectName: String, methodName: String, args: Any*): T = {
     val bindings = engine.createBindings()
     compiledScript.get.eval(bindings)
-    val obj = bindings.get(objectName).asInstanceOf[JSObject]
-    val method = obj.getMember(methodName).asInstanceOf[JSObject]
-    method.call(obj, args.map(_.asInstanceOf[AnyRef]): _*).asInstanceOf[T]
+    val obj = bindings.get(objectName).asInstanceOf[ScriptObjectMirror]
+    obj.callMember(methodName, args.map(_.asInstanceOf[AnyRef]): _*).asInstanceOf[T]
   }
 
 }
