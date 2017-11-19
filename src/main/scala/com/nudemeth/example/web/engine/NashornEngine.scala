@@ -5,7 +5,7 @@ import javax.script.CompiledScript
 import jdk.nashorn.api.scripting.{NashornScriptEngine, NashornScriptEngineFactory, ScriptObjectMirror}
 
 object NashornEngine {
-  private var instance: Option[NashornEngine] = None
+  private[this] var instance: Option[NashornEngine] = None
   def apply(scripts: Seq[ScriptSource]): NashornEngine = {
     instance match {
       case Some(_) =>
