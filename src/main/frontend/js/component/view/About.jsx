@@ -1,10 +1,11 @@
 import React from 'react';
+import TitleBar from '../browser/TitleBar.jsx';
 
 class About extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            model: this.props.model || {text: ''}
+            model: this.props.model
         }
     }
 
@@ -35,7 +36,10 @@ class About extends React.Component {
 
     render() {
         return (
-            <h2>{this.state.model.text}</h2>
+            <div>
+                <TitleBar title={this.state.model.title} />
+                <h2>{this.state.model.text}</h2>
+            </div>
         );
     }
 }

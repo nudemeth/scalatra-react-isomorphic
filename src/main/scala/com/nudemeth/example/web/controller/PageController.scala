@@ -6,13 +6,13 @@ import org.json4s.jackson.Serialization.write
 class PageController extends BaseController {
 
   get("/") {
-    val model = write(HomeViewModel(s"This is Home page"))
+    val model = write(new HomeViewModel(s"This is Home page"))
     val content = renderer.invokeMethod[String]("frontend", "renderServer", requestPath, model)
     views.html.index.render(content, model)
   }
 
   get("/about") {
-    val model = write(AboutViewModel(s"About page"))
+    val model = write(new AboutViewModel(s"About page"))
     val content = renderer.invokeMethod[String]("frontend", "renderServer", requestPath, model)
     views.html.index.render(content, model)
   }
