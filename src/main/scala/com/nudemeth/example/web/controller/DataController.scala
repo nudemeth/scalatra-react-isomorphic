@@ -1,19 +1,32 @@
 package com.nudemeth.example.web.controller
 
+import akka.actor.ActorSystem
 import com.nudemeth.example.web.viewmodel._
 import org.json4s.jackson.Serialization.write
+import org.scalatra.{AsyncResult, FutureSupport}
 
-class DataController extends BaseController {
+import scala.concurrent.{ExecutionContext, Future}
+
+class DataController(system: ActorSystem) extends BaseController with FutureSupport {
+
+  protected implicit def executor: ExecutionContext = system.dispatcher
 
   get("/home") {
-    contentType = "application/json"
-    write(HomeViewModel(s"This is Home page"))
-
+    new AsyncResult() {
+      override val is = Future {
+        contentType = "application/json"
+        write(new HomeViewModel(s"This is Home page"))
+      }
+    }
   }
 
   get("/about") {
-    contentType = "application/json"
-    write(AboutViewModel(s"About page"))
+    new AsyncResult() {
+      override val is = Future {
+        contentType = "application/json"
+        write(new AboutViewModel(s"About page"))
+      }
+    }
   }
 
 }

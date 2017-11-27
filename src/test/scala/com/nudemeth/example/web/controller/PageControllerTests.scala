@@ -1,11 +1,17 @@
 package com.nudemeth.example.web.controller
 
-import org.scalatest.FunSuiteLike
-import org.scalatra.test.scalatest._
+import akka.actor.ActorSystem
+import org.scalatest.{BeforeAndAfterAll, FunSuiteLike}
+import org.scalatra.test.scalatest.ScalatraSuite
 
-class PageControllerTests extends ScalatraSuite with FunSuiteLike {
+class PageControllerTests extends ScalatraSuite with FunSuiteLike with BeforeAndAfterAll {
 
-  addServlet(classOf[PageController], "/*")
+  val system = ActorSystem()
+  addServlet(new PageController(system), "/*")
+
+  override def afterAll(): Unit = {
+    system.terminate()
+  }
 
   test("GET / on PageController should return status 200"){
     get("/"){
@@ -24,5 +30,6 @@ class PageControllerTests extends ScalatraSuite with FunSuiteLike {
       body should include ("About page")
     }
   }
+
 
 }
