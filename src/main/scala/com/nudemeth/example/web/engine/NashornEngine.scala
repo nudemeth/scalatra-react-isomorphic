@@ -6,7 +6,7 @@ import jdk.nashorn.api.scripting.{NashornScriptEngine, NashornScriptEngineFactor
 
 object NashornEngine {
   private[this] var instance: Option[NashornEngine] = None
-  def apply(scripts: Seq[ScriptSource]): NashornEngine = {
+  def registerScripts(scripts: Seq[ScriptSource]): NashornEngine = {
     instance match {
       case Some(_) =>
       case None => instance = Some(new NashornEngine(scripts))

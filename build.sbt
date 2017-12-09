@@ -15,6 +15,8 @@ libraryDependencies ++= Seq(
   "javax.servlet" % "javax.servlet-api" % "3.1.0" % "provided",
   "com.typesafe.akka" %% "akka-actor" % "2.5.7",
   "net.databinder.dispatch" %% "dispatch-core" % "0.13.2",
+  "com.eclipsesource.j2v8" % "j2v8_win32_x86_64" % "4.6.0",
+  "com.eclipsesource.j2v8" % "j2v8_linux_x86_64" % "4.6.0",
 )
 resourceGenerators.in(Compile) += buildFrontEndResource.init
 
