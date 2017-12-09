@@ -23,7 +23,7 @@ sealed class J2V8Engine private(scripts: Seq[ScriptSource]) extends JavaScriptEn
   engine.executeVoidScript(allScripts)
   engine.getLocker.release()
 
-  override def invokeMethod[T](objectName: String, methodName: String, args: Any*) = {
+  override def invokeMethod[T](objectName: String, methodName: String, args: Any*) = synchronized {
     engine.getLocker.acquire()
     val obj = engine.getObject(objectName)
     val paramz = new V8Array(engine)
