@@ -5,32 +5,31 @@ import javax.script.CompiledScript
 import jdk.nashorn.api.scripting.{NashornScriptEngine, NashornScriptEngineFactory, ScriptObjectMirror}
 
 object NashornEngine {
-  private[this] var instance: Option[NashornEngine] = None
-  def registerScripts(scripts: Seq[ScriptSource]): NashornEngine = {
-    instance match {
-      case Some(_) =>
-      case None => instance = Some(new NashornEngine(scripts))
-    }
-    instance.get
-  }
+  val instance: JavaScriptEngine = new NashornEngine()
 }
 
-sealed class NashornEngine private(scripts: Seq[ScriptSource]) extends JavaScriptEngine(scripts) {
+sealed class NashornEngine private(allScripts: Option[String] = None, engine: Option[NashornScriptEngine] = None, compiledScript: Option[CompiledScript] = None) extends JavaScriptEngine {
   /*
     Shared engine and compiled script. See links below:
     https://stackoverflow.com/questions/30140103/should-i-use-a-separate-scriptengine-and-compiledscript-instances-per-each-threa
     https://blogs.oracle.com/nashorn/nashorn-multithreading-and-mt-safety
   */
-  private val engine = new NashornScriptEngineFactory()
-    .getScriptEngine("-strict", "--no-java", "--no-syntax-extensions")
-    .asInstanceOf[NashornScriptEngine]
-
-  private val compiledScript: CompiledScript = {
-    val allScript = scripts.map{
+  override def registerScripts(scripts: Seq[ScriptSource]): JavaScriptEngine = {
+    new NashornEngine(Some(scripts.map{
       case ScriptText(s) => s
       case ScriptURL(s) => scala.io.Source.fromURL(s)("UTF-8").mkString
-    }.mkString(sys.props("line.separator"))
-    engine.compile(allScript)
+    }.mkString(sys.props("line.separator"))))
+  }
+
+  override def build: NashornEngine = {
+    if (allScripts.isEmpty) {
+      throw new UnsupportedOperationException("No scripts have been registered. Please call registerScripts method first.")
+    }
+    val engine = new NashornScriptEngineFactory()
+      .getScriptEngine("-strict", "--no-java", "--no-syntax-extensions")
+      .asInstanceOf[NashornScriptEngine]
+    val compiledScript = engine.compile(allScripts.get)
+    new NashornEngine(allScripts, Some(engine), Some(compiledScript))
   }
 
   /**
@@ -42,11 +41,10 @@ sealed class NashornEngine private(scripts: Seq[ScriptSource]) extends JavaScrip
     * @return Instance of expected T type
     */
   override def invokeMethod[T](objectName: String, methodName: String, args: Any*): T = {
-    val bindings = engine.createBindings()
-    compiledScript.eval(bindings)
+    val bindings = engine.get.createBindings()
+    compiledScript.get.eval(bindings)
     val obj = bindings.get(objectName).asInstanceOf[ScriptObjectMirror]
     obj.callMember(methodName, args.map(_.asInstanceOf[AnyRef]): _*).asInstanceOf[T]
   }
 
 }
-

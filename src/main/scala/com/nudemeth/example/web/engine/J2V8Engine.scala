@@ -1,32 +1,36 @@
 package com.nudemeth.example.web.engine
 
-import com.eclipsesource.v8.{V8, V8Array, V8Locker}
+import com.eclipsesource.v8.{V8, V8Array}
 
 object J2V8Engine {
-  private[this] var instance: Option[J2V8Engine] = None
-  def registerScripts(scripts: Seq[ScriptSource]): J2V8Engine = {
-    instance match {
-      case Some(_) =>
-      case None => instance = Some(new J2V8Engine(scripts))
-    }
-    instance.get
-  }
+  val instance: JavaScriptEngine = new J2V8Engine()
 }
 
-sealed class J2V8Engine private(scripts: Seq[ScriptSource]) extends JavaScriptEngine(scripts) {
-  private val engine = V8.createV8Runtime()
-  private val allScripts = scripts.map {
-    case ScriptText(s) => s
-    case ScriptURL(s) => scala.io.Source.fromURL(s)("UTF-8").mkString
-  }.mkString(sys.props("line.separator"))
+sealed class J2V8Engine private(allScripts: Option[String] = None, engine: Option[V8] = None) extends JavaScriptEngine {
 
-  engine.executeVoidScript(allScripts)
-  engine.getLocker.release()
+  override def registerScripts(scripts: Seq[ScriptSource]): JavaScriptEngine = {
+    new J2V8Engine(Some(scripts.map{
+      case ScriptText(s) => s
+      case ScriptURL(s) => scala.io.Source.fromURL(s)("UTF-8").mkString
+    }.mkString(sys.props("line.separator"))))
+  }
 
-  override def invokeMethod[T](objectName: String, methodName: String, args: Any*) = synchronized {
-    engine.getLocker.acquire()
-    val obj = engine.getObject(objectName)
-    val paramz = new V8Array(engine)
+  override def build: J2V8Engine = {
+    if (allScripts.isEmpty) {
+      throw new UnsupportedOperationException("No scripts have been registered. Please call registerScripts method first.")
+    }
+
+    val engine = V8.createV8Runtime()
+    engine.executeVoidScript(allScripts.get)
+    engine.getLocker.release()
+
+    new J2V8Engine(allScripts, Some(engine))
+  }
+
+  override def invokeMethod[T](objectName: String, methodName: String, args: Any*): T = synchronized {
+    engine.get.getLocker.acquire()
+    val obj = engine.get.getObject(objectName)
+    val paramz = new V8Array(engine.get)
     args.foldLeft(paramz)((params, value) => {
       value match {
         case s:String => params.push(s)
@@ -39,12 +43,12 @@ sealed class J2V8Engine private(scripts: Seq[ScriptSource]) extends JavaScriptEn
     val result = obj.executeStringFunction(methodName, paramz).asInstanceOf[T]
     paramz.release()
     obj.release()
-    engine.getLocker.release()
+    engine.get.getLocker.release()
     result
   }
 
   override def destroy: Unit = {
-    engine.release()
+    engine.get.release()
     super.destroy
   }
 }
