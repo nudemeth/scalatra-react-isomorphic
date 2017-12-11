@@ -3,7 +3,7 @@ package com.nudemeth.example.web.engine
 import com.eclipsesource.v8.{V8, V8Array}
 
 object J2V8Engine {
-  val instance: JavaScriptEngine = new J2V8Engine()
+  val instance: J2V8Engine = new J2V8Engine()
 }
 
 sealed class J2V8Engine private(allScripts: Option[String] = None, engine: Option[V8] = None) extends JavaScriptEngine {

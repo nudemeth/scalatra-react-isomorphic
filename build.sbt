@@ -17,6 +17,7 @@ libraryDependencies ++= Seq(
   "net.databinder.dispatch" %% "dispatch-core" % "0.13.2",
   "com.eclipsesource.j2v8" % "j2v8_win32_x86_64" % "4.6.0",
   "com.eclipsesource.j2v8" % "j2v8_linux_x86_64" % "4.6.0",
+  "org.apache.commons" % "commons-pool2" % "2.4.3"
 )
 resourceGenerators.in(Compile) += buildFrontEndResource.init
 
