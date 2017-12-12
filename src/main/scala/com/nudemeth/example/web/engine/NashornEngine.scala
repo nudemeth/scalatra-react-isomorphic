@@ -14,7 +14,7 @@ object NashornEngine {
 
 sealed class NashornEngine private(allScripts: Option[String] = None, engine: Option[NashornScriptEngine] = None, compiledScript: Option[CompiledScript] = None, bindingsPool: Option[ObjectPool[Bindings]] = None) extends JavaScriptEngine {
 
-  private val INITIAL_OBJECT_NUMBER = 50
+  private val NUM_OF_INITIAL_OBJECT = 50
 
   private class NashornBindingsFactory(engine: NashornScriptEngine) extends BasePooledObjectFactory[Bindings] {
     override def create(): Bindings = {
@@ -46,7 +46,7 @@ sealed class NashornEngine private(allScripts: Option[String] = None, engine: Op
       .getScriptEngine("-strict", "--no-java", "--no-syntax-extensions")
       .asInstanceOf[NashornScriptEngine]
     val compiledScript = engine.compile(allScripts.get)
-    val bindingsPool = initializeBindingsPool(engine, INITIAL_OBJECT_NUMBER)
+    val bindingsPool = initializeBindingsPool(engine, NUM_OF_INITIAL_OBJECT)
     new NashornEngine(allScripts, Some(engine), Some(compiledScript), Some(bindingsPool))
   }
 
@@ -70,9 +70,9 @@ sealed class NashornEngine private(allScripts: Option[String] = None, engine: Op
     }
   }
 
-  private def initializeBindingsPool(engine: NashornScriptEngine, initialObjectNumber: Int): ObjectPool[Bindings] = {
+  private def initializeBindingsPool(engine: NashornScriptEngine, numOfInitialObject: Int): ObjectPool[Bindings] = {
     val bindingsPool = new GenericObjectPool[Bindings](new NashornBindingsFactory(engine))
-    (0 until initialObjectNumber).foreach(_ => bindingsPool.addObject())
+    (0 until numOfInitialObject).foreach(_ => bindingsPool.addObject())
     bindingsPool
   }
 
