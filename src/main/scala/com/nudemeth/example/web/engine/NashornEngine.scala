@@ -12,13 +12,15 @@ object NashornEngine {
   val instance: NashornEngine = new NashornEngine()
 }
 
-sealed class NashornEngine private(allScripts: Option[String] = None, engine: Option[NashornScriptEngine] = None, compiledScript: Option[CompiledScript] = None, bindingsPool: Option[ObjectPool[Bindings]] = None) extends JavaScriptEngine {
+sealed class NashornEngine private(allScripts: Option[String] = None, engine: Option[NashornScriptEngine] = None, bindingsPool: Option[ObjectPool[Bindings]] = None) extends JavaScriptEngine {
 
   private val NUM_OF_INITIAL_OBJECT = 50
 
-  private class NashornBindingsFactory(engine: NashornScriptEngine) extends BasePooledObjectFactory[Bindings] {
+  private class NashornBindingsFactory(engine: NashornScriptEngine, compiledScript: CompiledScript) extends BasePooledObjectFactory[Bindings] {
     override def create(): Bindings = {
-      engine.createBindings()
+      val bindings = engine.createBindings()
+      compiledScript.eval(bindings)
+      bindings
     }
 
     override def wrap(obj: Bindings): PooledObject[Bindings] = {
@@ -46,8 +48,8 @@ sealed class NashornEngine private(allScripts: Option[String] = None, engine: Op
       .getScriptEngine("-strict", "--no-java", "--no-syntax-extensions")
       .asInstanceOf[NashornScriptEngine]
     val compiledScript = engine.compile(allScripts.get)
-    val bindingsPool = initializeBindingsPool(engine, NUM_OF_INITIAL_OBJECT)
-    new NashornEngine(allScripts, Some(engine), Some(compiledScript), Some(bindingsPool))
+    val bindingsPool = initializeBindingsPool(engine, compiledScript, NUM_OF_INITIAL_OBJECT)
+    new NashornEngine(allScripts, Some(engine), Some(bindingsPool))
   }
 
   /**
@@ -62,7 +64,9 @@ sealed class NashornEngine private(allScripts: Option[String] = None, engine: Op
     val tryResult = for {
       bindings <- tryGetBindings
       result <- tryInvokeMethod[T](bindings, objectName, methodName, args: _*)
-    } yield result
+    } yield {
+      result
+    }
 
     tryResult match {
       case Failure(ex) => throw ex
@@ -70,8 +74,8 @@ sealed class NashornEngine private(allScripts: Option[String] = None, engine: Op
     }
   }
 
-  private def initializeBindingsPool(engine: NashornScriptEngine, numOfInitialObject: Int): ObjectPool[Bindings] = {
-    val bindingsPool = new GenericObjectPool[Bindings](new NashornBindingsFactory(engine))
+  private def initializeBindingsPool(engine: NashornScriptEngine, compiledScript: CompiledScript , numOfInitialObject: Int): ObjectPool[Bindings] = {
+    val bindingsPool = new GenericObjectPool[Bindings](new NashornBindingsFactory(engine, compiledScript))
     (0 until numOfInitialObject).foreach(_ => bindingsPool.addObject())
     bindingsPool
   }
@@ -81,7 +85,6 @@ sealed class NashornEngine private(allScripts: Option[String] = None, engine: Op
   }
 
   private def tryInvokeMethod[T](bindings: Bindings, objectName: String, methodName: String, args: Any*): Try[T] = Try {
-    compiledScript.get.eval(bindings)
     val obj = bindings.get(objectName).asInstanceOf[ScriptObjectMirror]
     val result = obj.callMember(methodName, args.map(_.asInstanceOf[AnyRef]): _*).asInstanceOf[T]
     bindingsPool.get.returnObject(bindings)
