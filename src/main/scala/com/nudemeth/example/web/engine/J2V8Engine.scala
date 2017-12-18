@@ -1,6 +1,7 @@
 package com.nudemeth.example.web.engine
 
 import com.eclipsesource.v8.{V8, V8Array}
+import com.nudemeth.example.util.NativeUtils
 import org.apache.commons.pool2.impl.{DefaultPooledObject, GenericObjectPool}
 import org.apache.commons.pool2.{BasePooledObjectFactory, ObjectPool, PooledObject}
 
@@ -8,6 +9,7 @@ import scala.util.{Failure, Success, Try}
 
 object J2V8Engine {
   val instance: J2V8Engine = new J2V8Engine()
+  NativeUtils.loadLibraryFromJar(System.mapLibraryName("/libj2v8_win32_x86_64"))
 }
 
 sealed class J2V8Engine private(allScripts: Option[String] = None, enginePool: Option[ObjectPool[V8]] = None) extends JavaScriptEngine {
