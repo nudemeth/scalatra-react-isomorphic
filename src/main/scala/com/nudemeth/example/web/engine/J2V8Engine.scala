@@ -25,6 +25,7 @@ sealed class J2V8Engine private(allScripts: Option[String] = None, enginePool: O
     }
 
     override def destroyObject(p: PooledObject[V8]): Unit = {
+      p.getObject.getLocker.acquire()
       p.getObject.release()
       super.destroyObject(p)
     }
