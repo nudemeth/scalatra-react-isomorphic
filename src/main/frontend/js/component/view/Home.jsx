@@ -30,7 +30,7 @@ class Home extends React.Component {
         });
     }
 
-    componentDidMount = () => {
+    componentDidMount {
         this.loadModelFromServer();
     }
 
